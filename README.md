@@ -1,11 +1,50 @@
-# deep-learning-ubbse2015
+## Description for the VoiceConf android application 
+### Table of contents
+* Requirements
+* Installation
+* Setup
 
-[![Join the chat at https://gitter.im/triqla/deep-learning-ubbse2015](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/triqla/deep-learning-ubbse2015?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Stories in Ready](https://badge.waffle.io/triqla/deep-learning-ubbse2015.png?label=ready&title=Ready)](https://waffle.io/triqla/deep-learning-ubbse2015)
-####Babeş-Bolyai University
-## Deep learning methods for speaker recognition
+We recommend Android Studio for development (v1.4+).
+You can open the Project by selecting the VoiceConf directory or the build.gradle file within it.
 
-The project will use the [ELSDSR](http://www.imm.dtu.dk/~lfen/elsdsr/) database for training and testing, but we also might generate additional data with noise samples from the [PRISM-set](https://code.google.com/p/prism-set/) to increase accuracy.
+### Requirements
+You will have to install these tools from the android SDK manager
+- Google Play Services, rev 29 
+- Google Repository, rev 24
+- Android Support Repository, rev 25
+- Android Support Library, rev 23.1.1
+- Android SDK Tools 25.0.1
+- Android SDK 23.0.2
 
-## Setup
-For more information about the building and installing read the [server](https://github.com/triqla/deep-learning-ubbse2015/blob/master/server/readme.md) and [application](https://github.com/triqla/deep-learning-ubbse2015/blob/master/VoiceConf/README.md) readmes.
+### Installation
+To build and run the project simply press the green Run button, with the "app" selected as configuration. (You will need an android mobile device or an emulator with Google Play Services)
+
+#### Building
+
+Building from the command-line:
+
+``` bash
+./gradlew assemble
+```
+
+Note: Cleaning the project is recommended before building but not necessary.
+
+``` bash
+./gradlew clean
+```
+#### Testing
+
+Run Unit tests from the command-line:
+
+``` bash
+./gradlew test
+```
+
+### Running
+After the build a debug apk is generated which you can find it in the ```/VoiceConf/app/build/outputs/apk/app-debug.apk```.
+
+This apk can be installed on any android device by opening it.
+
+### Setup
+
+After the user is loggedin, the servers ip adress must be updated in the settings section.
