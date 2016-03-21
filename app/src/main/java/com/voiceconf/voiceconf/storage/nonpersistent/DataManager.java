@@ -11,20 +11,16 @@ import java.util.List;
 import java.util.Observable;
 
 /**
- * Use this class to manage data for the application lifecycle;
- * <p/>
- * Created by Attila Blenesi on 28 Dec 2015
+ * Use this class to manage data for the application lifecycle.
  */
 public class DataManager extends Observable {
 
-    //region VARIABLES
     // Data types for observer notification
     public static final int FRIENDS_UPDATED = 1;
     public static final int CONFERENCE_UPDATED = 2;
 
     private List<Friend> mFriends;
     private List<Conference> mConferences;
-    //endregion
 
     //region GETTER/SETTERS
 
@@ -113,9 +109,15 @@ public class DataManager extends Observable {
         }
     }
 
+    /**
+     * Filters the list of conferences.
+     *
+     * @param conferenceId The id of the conference witch wil be searched.
+     * @return The conference with the given id if exists null otherwise.
+     */
     public Conference getConference(@NonNull String conferenceId) {
-        for(Conference conference : mConferences){
-            if(conference.getObjectId().equals(conferenceId)){
+        for (Conference conference : mConferences) {
+            if (conference.getObjectId().equals(conferenceId)) {
                 return conference;
             }
         }
