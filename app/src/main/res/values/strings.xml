@@ -10,7 +10,7 @@
     <!--LOGIN-->
     <string name="login_call_to_action">smart voice \nconferencing</string>
     <string name="login_failed">Connection failed :(</string>
-    <string name="something_went_wrong">Something went wrong.</string>
+    <string name="something_went_wrong">Something went wrong. Login failed.</string>
     <string name="retry">RETRY</string>
 
     <!--MAIN SCREEN-->
@@ -58,7 +58,7 @@
     <string name="jon_snow">Jon Snow</string>
     <string name="invite_more">Invite more</string>
     <string name="synchronise">Synchronise</string>
-    <string name="voume_off">Voume off</string>
+    <string name="volume_off">Voume off</string>
     <string name="owner_and_invitees"><![CDATA[Owner & invitees]]></string>
     <string name="current_speaker">Current speaker</string>
     <string name="owner">Owner</string>

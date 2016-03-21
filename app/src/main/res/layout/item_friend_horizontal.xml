@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="128dp"
+    android:layout_height="wrap_content"
     android:paddingBottom="@dimen/content_padding"
     android:paddingLeft="@dimen/small_padding"
     android:paddingStart="@dimen/small_padding"
@@ -11,19 +11,22 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_avatar"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_centerHorizontal="true"
         android:src="@drawable/placeholder_conference" />
 
     <!--For item extras-->
     <ImageView
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_centerHorizontal="true"
         tools:ignore="ContentDescription" />
 
     <TextView
+        android:layout_centerHorizontal="true"
         android:id="@+id/user_name"
-        android:layout_width="72dp"
+        android:layout_width="64dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/user_avatar"
         android:layout_marginEnd="@dimen/content_padding"
@@ -31,7 +34,7 @@
         android:layout_marginTop="@dimen/content_padding"
         android:gravity="center"
         android:lines="1"
-        android:textSize="@dimen/text_size_subhead"
+        android:textSize="@dimen/text_size_body"
         tools:text="Jon Snow" />
 
 </RelativeLayout>

@@ -12,10 +12,21 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/speaker_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/content_padding"
+                android:layout_marginStart="@dimen/large_padding"
+                android:layout_marginTop="@dimen/large_padding"
+                android:text="@string/current_speaker"
+                android:textSize="@dimen/text_size_subhead" />
 
             <android.support.v7.widget.CardView
                 android:id="@+id/data"
@@ -23,20 +34,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/small_padding"
                 android:layout_marginEnd="-4dp"
-                android:layout_marginStart="-4dp"
-                android:layout_marginTop="@dimen/small_padding"
-                app:contentPaddingBottom="@dimen/large_padding"
-                app:contentPaddingTop="@dimen/large_padding">
-
-                <TextView
-                    android:id="@+id/speaker_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/large_padding"
-                    android:layout_marginStart="@dimen/large_padding"
-                    android:text="@string/current_speaker"
-                    android:textSize="@dimen/text_size_subhead"
-                    android:textStyle="bold" />
+                android:layout_marginStart="-4dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -47,9 +45,8 @@
 
                     <TextView
                         android:id="@+id/conference_started"
-                        android:layout_width="84dp"
-                        android:layout_height="84dp"
-                        android:layout_gravity="center_vertical"
+                        android:layout_width="68dp"
+                        android:layout_height="68dp"
                         android:layout_margin="@dimen/large_padding"
                         android:background="@drawable/bg_circle_primary"
                         android:gravity="center"
@@ -80,9 +77,8 @@
 
                     <TextView
                         android:id="@+id/conference_duration"
-                        android:layout_width="84dp"
-                        android:layout_height="84dp"
-                        android:layout_gravity="center_vertical"
+                        android:layout_width="68dp"
+                        android:layout_height="68dp"
                         android:layout_margin="@dimen/large_padding"
                         android:background="@drawable/bg_circle_primary"
                         android:gravity="center"
@@ -93,6 +89,15 @@
                 </LinearLayout>
 
             </android.support.v7.widget.CardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/content_padding"
+                android:layout_marginStart="@dimen/large_padding"
+                android:layout_marginTop="@dimen/large_padding"
+                android:text="@string/owner_and_invitees"
+                android:textSize="@dimen/text_size_subhead" />
 
             <android.support.v7.widget.CardView
                 android:id="@+id/invited_card"
@@ -107,26 +112,15 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/large_padding"
-                        android:layout_marginStart="@dimen/large_padding"
-                        android:layout_marginTop="@dimen/large_padding"
-                        android:text="@string/owner_and_invitees"
-                        android:textSize="@dimen/text_size_subhead"
-                        android:textStyle="bold" />
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/invitees_recycler"
                         android:layout_width="match_parent"
-                        android:layout_height="124dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginEnd="-4dp"
                         android:layout_marginStart="-4dp"
                         android:clipToPadding="false"
                         android:paddingEnd="@dimen/small_padding"
-                        android:paddingLeft="@dimen/large_padding"
-                        android:paddingRight="@dimen/small_padding"
                         android:paddingStart="@dimen/large_padding"
                         app:layoutManager="GridLayoutManager"
                         tools:listitem="@layout/item_friend_horizontal" />
@@ -174,7 +168,7 @@
             android:layout_height="@dimen/min_view_height"
             android:layout_margin="@dimen/content_padding"
             android:background="@color/colorPrimary"
-            android:contentDescription="@string/voume_off"
+            android:contentDescription="@string/volume_off"
             android:src="@drawable/ic_volume_off_white_24dp" />
 
         <ImageButton
@@ -193,16 +187,16 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/fab_margin"
-        android:visibility="gone"
-        android:src="@drawable/ic_call_end_white_24dp" />
+        android:src="@drawable/ic_call_end_white_24dp"
+        android:visibility="gone" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/conference_start"
-        android:theme="@style/GreenTheme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/fab_margin"
-        android:src="@drawable/ic_call_white_24dp" />
+        android:src="@drawable/ic_call_white_24dp"
+        android:theme="@style/GreenTheme" />
 </RelativeLayout>
