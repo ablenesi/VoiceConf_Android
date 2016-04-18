@@ -5,12 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
-import com.parse.FindCallback;
-import com.parse.GetCallback;
-import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 import com.voiceconf.voiceconf.storage.models.Friend;
 import com.voiceconf.voiceconf.storage.models.User;
 import com.voiceconf.voiceconf.storage.nonpersistent.VoiceConfApplication;
@@ -33,34 +29,31 @@ public class FriendService {
     public static void getFriends(@Nullable final ParseGetCallback<Friend> callback) {
         // Preparing query
         ParseQuery<Friend> fromCurrent = ParseQuery.getQuery(Friend.class);
-        fromCurrent.whereEqualTo(Friend.USER_ID, ParseUser.createWithoutData(ParseUser.class, ParseUser.getCurrentUser().getObjectId()));
+        fromCurrent.whereEqualTo(Friend.Companion.getUSER_ID(), ParseUser.createWithoutData(ParseUser.class, ParseUser.getCurrentUser().getObjectId()));
 
         ParseQuery<Friend> fromOther = ParseQuery.getQuery(Friend.class);
-        fromOther.whereEqualTo(Friend.FRIEND_ID, ParseUser.createWithoutData(ParseUser.class, ParseUser.getCurrentUser().getObjectId()));
+        fromOther.whereEqualTo(Friend.Companion.getFRIEND_ID(), ParseUser.createWithoutData(ParseUser.class, ParseUser.getCurrentUser().getObjectId()));
 
         List<ParseQuery<Friend>> queries = new ArrayList<>();
         queries.add(fromCurrent);
         queries.add(fromOther);
 
         ParseQuery<Friend> friendQuery = ParseQuery.or(queries);
-        friendQuery.whereEqualTo(Friend.ARCHIVED, false);
-        friendQuery.include(Friend.FRIEND_ID);
-        friendQuery.include(Friend.USER_ID);
+        friendQuery.whereEqualTo(Friend.Companion.getARCHIVED(), false);
+        friendQuery.include(Friend.Companion.getFRIEND_ID());
+        friendQuery.include(Friend.Companion.getUSER_ID());
 
         // Running query in background
-        friendQuery.findInBackground(new FindCallback<Friend>() {
-            @Override
-            public void done(List<Friend> objects, ParseException e) {
-                if (e == null) {
-                    if (callback == null) {
-                        VoiceConfApplication.sDataManager.setFriends(objects);
-                    } else {
-                        callback.onResult(objects);
-                    }
+        friendQuery.findInBackground((objects, e) -> {
+            if (e == null) {
+                if (callback == null) {
+                    VoiceConfApplication.sDataManager.setFriends(objects);
                 } else {
-                    if (callback != null) {
-                        callback.onFailure(e);
-                    }
+                    callback.onResult(objects);
+                }
+            } else {
+                if (callback != null) {
+                    callback.onFailure(e);
                 }
             }
         });
@@ -86,24 +79,18 @@ public class FriendService {
         final Friend friend = new Friend();
         ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
         userQuery.whereEqualTo(User.EMAIL, email);
-        userQuery.getFirstInBackground(new GetCallback<ParseUser>() {
-            @Override
-            public void done(ParseUser parseUser, ParseException e) {
-                if (parseUser != null) {
-                    friend.setFriend(parseUser.getObjectId());
-                    friend.setUser(User.getCurrentUser().getObjectId());
-                    friend.setPending(true);
-                    friend.setArchived(false);
-                    friend.saveInBackground(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            if (e == null) {
-                                Toast.makeText(context, "Friend added succesfully", Toast.LENGTH_LONG).show();
-                                getFriends(null);
-                            }
-                        }
-                    });
-                }
+        userQuery.getFirstInBackground((parseUser, e) -> {
+            if (parseUser != null) {
+                friend.setFriend(parseUser.getObjectId());
+                friend.setUser(User.getCurrentUser().getObjectId());
+                friend.setPending(true);
+                friend.setArchived(false);
+                friend.saveInBackground(e1 -> {
+                    if (e1 == null) {
+                        Toast.makeText(context, "Friend added successfully", Toast.LENGTH_LONG).show();
+                        getFriends(null);
+                    }
+                });
             }
         });
     }
@@ -111,22 +98,12 @@ public class FriendService {
     public static void archiveFriend(@NonNull Friend friend, boolean archive) {
         Friend object = Friend.createWithoutData(Friend.class, friend.getObjectId());
         object.setArchived(archive);
-        object.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                getFriends(null);
-            }
-        });
+        object.saveInBackground(e -> getFriends(null));
     }
 
     public static void acceptFriend(@NonNull Friend friend) {
         Friend object = Friend.createWithoutData(Friend.class, friend.getObjectId());
         object.setPending(false);
-        object.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                getFriends(null);
-            }
-        });
+        object.saveInBackground(e -> getFriends(null));
     }
 }
