@@ -56,38 +56,30 @@ public class ConferenceDetailActivity extends AppCompatActivity {
         final EditText editTitle = (EditText) findViewById(R.id.conference_title);
         // Floating Action Button setup
         mFloatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
-        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // On F.A.B. press the conference will be saved then started.
-                mFloatingActionButton.setEnabled(false);
-                ConferenceService.saveConferenceWithInvites(new ConferenceCallback() {
-                    @Override
-                    public void onSuccess(String message, Conference conference) {
-                        Snackbar.make(mFloatingActionButton, message, Snackbar.LENGTH_LONG).show();
-                        if(conference != null){
-                            NavUtils.navigateUpTo(ConferenceDetailActivity.this, new Intent(ConferenceDetailActivity.this, MainActivity.class));
-                            startActivity(ConferenceActivity.getStartIntent(ConferenceDetailActivity.this, conference));
-                        }
+        mFloatingActionButton.setOnClickListener(view -> {
+            // On F.A.B. press the conference will be saved then started.
+            mFloatingActionButton.setEnabled(false);
+            ConferenceService.saveConferenceWithInvites(new ConferenceCallback() {
+                @Override
+                public void onSuccess(String message, Conference conference) {
+                    Snackbar.make(mFloatingActionButton, message, Snackbar.LENGTH_LONG).show();
+                    if(conference != null){
+                        NavUtils.navigateUpTo(ConferenceDetailActivity.this, new Intent(ConferenceDetailActivity.this, MainActivity.class));
+                        startActivity(ConferenceActivity.getStartIntent(ConferenceDetailActivity.this, conference));
                     }
+                }
 
-                    @Override
-                    public void onFailure(Exception e, String message) {
-                        Snackbar.make(mFloatingActionButton, message, Snackbar.LENGTH_LONG).show();
-                        mFloatingActionButton.setEnabled(true);
-                    }
-                }, editTitle.getText().toString(), mInviteesAdapter.getItemIds());
-            }
+                @Override
+                public void onFailure(Exception e, String message) {
+                    Snackbar.make(mFloatingActionButton, message, Snackbar.LENGTH_LONG).show();
+                    mFloatingActionButton.setEnabled(true);
+                }
+            }, editTitle.getText().toString(), mInviteesAdapter.getItemIds());
         });
 
         // Add invitees with placeholder
         View placeholder = findViewById(R.id.add_invitees);
-        placeholder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(new Intent(ConferenceDetailActivity.this, SelectFriendsActivity.class), SelectFriendsActivity.RESULT_CODE);
-            }
-        });
+        placeholder.setOnClickListener(v -> startActivityForResult(new Intent(ConferenceDetailActivity.this, SelectFriendsActivity.class), SelectFriendsActivity.RESULT_CODE));
 
         // Recycler view setup
         mInviteesAdapter = new InviteesAdapter(null);

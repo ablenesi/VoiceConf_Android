@@ -29,19 +29,19 @@ public class FriendService {
     public static void getFriends(@Nullable final ParseGetCallback<Friend> callback) {
         // Preparing query
         ParseQuery<Friend> fromCurrent = ParseQuery.getQuery(Friend.class);
-        fromCurrent.whereEqualTo(Friend.Companion.getUSER_ID(), ParseUser.createWithoutData(ParseUser.class, ParseUser.getCurrentUser().getObjectId()));
+        fromCurrent.whereEqualTo(Friend.USER_ID, ParseUser.createWithoutData(ParseUser.class, ParseUser.getCurrentUser().getObjectId()));
 
         ParseQuery<Friend> fromOther = ParseQuery.getQuery(Friend.class);
-        fromOther.whereEqualTo(Friend.Companion.getFRIEND_ID(), ParseUser.createWithoutData(ParseUser.class, ParseUser.getCurrentUser().getObjectId()));
+        fromOther.whereEqualTo(Friend.FRIEND_ID, ParseUser.createWithoutData(ParseUser.class, ParseUser.getCurrentUser().getObjectId()));
 
         List<ParseQuery<Friend>> queries = new ArrayList<>();
         queries.add(fromCurrent);
         queries.add(fromOther);
 
         ParseQuery<Friend> friendQuery = ParseQuery.or(queries);
-        friendQuery.whereEqualTo(Friend.Companion.getARCHIVED(), false);
-        friendQuery.include(Friend.Companion.getFRIEND_ID());
-        friendQuery.include(Friend.Companion.getUSER_ID());
+        friendQuery.whereEqualTo(Friend.ARCHIVED, false);
+        friendQuery.include(Friend.FRIEND_ID);
+        friendQuery.include(Friend.USER_ID);
 
         // Running query in background
         friendQuery.findInBackground((objects, e) -> {

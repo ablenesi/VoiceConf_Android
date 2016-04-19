@@ -29,23 +29,17 @@ public class AddFriendDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(getContext().getString(R.string.add_friend))
                 .setView(R.layout.dialog_add_friend)
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dismiss();
-                    }
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                    dismiss();
                 })
-                .setPositiveButton(getContext().getString(R.string.add_friend), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mInputLayout.setError("");
-                        if (mEmailInput != null && Validator.isValidEmail(mEmailInput.getText().toString())) {
-                            FriendService.addNewFriend(getContext(), mEmailInput.getText().toString());
-                        }
-                        else {
-                            Snackbar.make(mEmailInput, R.string.invalid_email, Snackbar.LENGTH_LONG).show();
-                            mEmailInput.setText("");
-                        }
+                .setPositiveButton(getContext().getString(R.string.add_friend), (dialog, which) -> {
+                    mInputLayout.setError("");
+                    if (mEmailInput != null && Validator.isValidEmail(mEmailInput.getText().toString())) {
+                        FriendService.addNewFriend(getContext(), mEmailInput.getText().toString());
+                    }
+                    else {
+                        Snackbar.make(mEmailInput, R.string.invalid_email, Snackbar.LENGTH_LONG).show();
+                        mEmailInput.setText("");
                     }
                 });
 

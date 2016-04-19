@@ -73,38 +73,32 @@ public class MainActivity extends AppCompatActivity
         ((TextView) header.findViewById(R.id.user_name)).setText(currentUser.getUsername());
         ((TextView) header.findViewById(R.id.user_email)).setText(currentUser.getEmail());
 
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.nav_search:
-                        Snackbar.make(navigationView, R.string.under_development, Snackbar.LENGTH_LONG).show();
-                        return true;
-                    case R.id.nav_add_friend:
-                        new AddFriendDialog().show(getSupportFragmentManager(), ADD_FRIEND_DIALOG_TAG);
-                        return true;
-                    case R.id.nav_settings:
-                        return openSettings();
-                    case R.id.nav_logout:
-                        return logOut();
-                    default:
-                        return false;
-                }
+        navigationView.setNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.nav_search:
+                    Snackbar.make(navigationView, R.string.under_development, Snackbar.LENGTH_LONG).show();
+                    return true;
+                case R.id.nav_add_friend:
+                    new AddFriendDialog().show(getSupportFragmentManager(), ADD_FRIEND_DIALOG_TAG);
+                    return true;
+                case R.id.nav_settings:
+                    return openSettings();
+                case R.id.nav_logout:
+                    return logOut();
+                default:
+                    return false;
             }
         });
 
         // Floating Action Button setup
         mFloatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
-        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switch (mViewPager.getCurrentItem()) {
-                    case MainPagerAdapter.HISTORY_TAB:
-                        startActivity(new Intent(MainActivity.this, ConferenceDetailActivity.class));
-                        break;
-                    case MainPagerAdapter.FRIENDS_TAB:
-                        new AddFriendDialog().show(getSupportFragmentManager(), ADD_FRIEND_DIALOG_TAG);
-                }
+        mFloatingActionButton.setOnClickListener(view -> {
+            switch (mViewPager.getCurrentItem()) {
+                case MainPagerAdapter.HISTORY_TAB:
+                    startActivity(new Intent(MainActivity.this, ConferenceDetailActivity.class));
+                    break;
+                case MainPagerAdapter.FRIENDS_TAB:
+                    new AddFriendDialog().show(getSupportFragmentManager(), ADD_FRIEND_DIALOG_TAG);
             }
         });
 

@@ -43,13 +43,10 @@ public class FriendsFragment extends Fragment implements Observer {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mRecyclerAdapter = new FriendRecyclerAdapter(null, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Accept
-                mSwipeContainer.setRefreshing(true);
-                FriendService.acceptFriend((Friend) v.getTag());
-            }
+        mRecyclerAdapter = new FriendRecyclerAdapter(null, v -> {
+            // Accept
+            mSwipeContainer.setRefreshing(true);
+            FriendService.acceptFriend((Friend) v.getTag());
         }, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,12 +62,9 @@ public class FriendsFragment extends Fragment implements Observer {
 
         mSwipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.friend_swipe_refresh);
         mSwipeContainer.setColorSchemeColors(R.color.colorAccent, R.color.colorPrimary);
-        mSwipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                FriendService.getFriends(null);
-                mSwipeContainer.setRefreshing(true);
-            }
+        mSwipeContainer.setOnRefreshListener(() -> {
+            FriendService.getFriends(null);
+            mSwipeContainer.setRefreshing(true);
         });
     }
 
@@ -78,12 +72,7 @@ public class FriendsFragment extends Fragment implements Observer {
     public void onStart() {
         super.onStart();
         FriendService.getFriends(null);
-        mSwipeContainer.post(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeContainer.setRefreshing(true);
-            }
-        });
+        mSwipeContainer.post(() -> mSwipeContainer.setRefreshing(true));
     }
 
     @Override

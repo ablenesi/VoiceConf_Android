@@ -57,42 +57,36 @@ public class SelectFriendsActivity extends AppCompatActivity {
 
         // Floating Action Button setup
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent result = new Intent();
-                ArrayList<String> friendIds = new ArrayList<>();
-                for (Map.Entry<Integer, Boolean> entry : mSelected.entrySet()){
-                    if(entry.getValue()){
-                        friendIds.add(mUsers.get(entry.getKey()).getObjectId());
-                    }
+        fab.setOnClickListener(view -> {
+            Intent result = new Intent();
+            ArrayList<String> friendIds = new ArrayList<>();
+            for (Map.Entry<Integer, Boolean> entry : mSelected.entrySet()){
+                if(entry.getValue()){
+                    friendIds.add(mUsers.get(entry.getKey()).getObjectId());
                 }
-                result.putStringArrayListExtra(SELECTED_USER_IDS, friendIds);
-                setResult(RESULT_OK, result);
-                finish();
             }
+            result.putStringArrayListExtra(SELECTED_USER_IDS, friendIds);
+            setResult(RESULT_OK, result);
+            finish();
         });
 
         // Recycler view setup
-        mRecyclerAdapter = new SelectFriendRecyclerAdapter(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int index = mUsers.indexOf(v.getTag());
-                //noinspection SimplifiableConditionalExpression [This satatement is more logical]
-                mSelected.put(index, mSelected.containsKey(index) ? !mSelected.get(index) : true);
-                mRecyclerAdapter.updateSelections(mSelected);
-                if(mSelected.size()>0){
-                    int count = 0;
-                    for (Map.Entry<Integer, Boolean> entry : mSelected.entrySet()){
-                        if(entry.getValue()){
-                            count++;
-                        }
+        mRecyclerAdapter = new SelectFriendRecyclerAdapter(v -> {
+            int index = mUsers.indexOf(v.getTag());
+            //noinspection SimplifiableConditionalExpression [This satatement is more logical]
+            mSelected.put(index, mSelected.containsKey(index) ? !mSelected.get(index) : true);
+            mRecyclerAdapter.updateSelections(mSelected);
+            if(mSelected.size()>0){
+                int count = 0;
+                for (Map.Entry<Integer, Boolean> entry : mSelected.entrySet()){
+                    if(entry.getValue()){
+                        count++;
                     }
-                    if(count > 0 ){
-                        fab.setVisibility(View.VISIBLE);
-                    }else{
-                        fab.setVisibility(View.INVISIBLE);
-                    }
+                }
+                if(count > 0 ){
+                    fab.setVisibility(View.VISIBLE);
+                }else{
+                    fab.setVisibility(View.INVISIBLE);
                 }
             }
         });

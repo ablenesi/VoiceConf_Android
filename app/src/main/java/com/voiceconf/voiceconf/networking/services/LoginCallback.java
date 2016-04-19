@@ -6,7 +6,7 @@ package com.voiceconf.voiceconf.networking.services;
  */
 public interface LoginCallback {
 
-    void onSucces();
+    void onSuccess();
 
     void onFailure(Exception e);
 }

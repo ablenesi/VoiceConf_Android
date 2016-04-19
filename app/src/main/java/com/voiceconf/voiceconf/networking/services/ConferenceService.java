@@ -29,51 +29,45 @@ public class ConferenceService {
         ParseQuery<Invite> inviteRequest = ParseQuery.getQuery(Invite.class);
         inviteRequest.whereEqualTo(Invite.INVITED, ParseUser.createWithoutData(ParseUser.class, ParseUser.getCurrentUser().getObjectId()));
         inviteRequest.include(Invite.CONFERENCE);
-        inviteRequest.findInBackground(new FindCallback<Invite>() {
-            @Override
-            public void done(List<Invite> objects, ParseException e) {
-                Log.d(TAG, "done: " + e);
-                if(e == null) {
-                    List<String> conferenceIds = new ArrayList<>();
-                    for (Invite invite : objects) {
-                        conferenceIds.add(invite.getConferenceId());
-                    }
+        inviteRequest.findInBackground((objects, e) -> {
+            Log.d(TAG, "done: " + e);
+            if(e == null) {
+                List<String> conferenceIds = new ArrayList<>();
+                for (Invite invite : objects) {
+                    conferenceIds.add(invite.getConferenceId());
+                }
 
-                    ParseQuery<Conference> otherRequests = ParseQuery.getQuery(Conference.class);
-                    otherRequests.whereContainedIn("objectId", conferenceIds);
+                ParseQuery<Conference> otherRequests = ParseQuery.getQuery(Conference.class);
+                otherRequests.whereContainedIn("objectId", conferenceIds);
 
-                    ParseQuery<Conference> myRequest = ParseQuery.getQuery(Conference.class);
-                    myRequest.whereEqualTo(Conference.OWNER, ParseUser.createWithoutData(ParseUser.class, ParseUser.getCurrentUser().getObjectId()));
+                ParseQuery<Conference> myRequest = ParseQuery.getQuery(Conference.class);
+                myRequest.whereEqualTo(Conference.OWNER, ParseUser.createWithoutData(ParseUser.class, ParseUser.getCurrentUser().getObjectId()));
 
-                    List<ParseQuery<Conference>> queries = new ArrayList<>();
-                    queries.add(otherRequests);
-                    queries.add(myRequest);
+                List<ParseQuery<Conference>> queries = new ArrayList<>();
+                queries.add(otherRequests);
+                queries.add(myRequest);
 
-                    ParseQuery<Conference> conferenceParseQuery = ParseQuery.or(queries);
-                    conferenceParseQuery.include(Conference.OWNER);
-                    conferenceParseQuery.include(Conference.INVITEES);
-                    conferenceParseQuery.orderByDescending("createdAt");
-                    conferenceParseQuery.findInBackground(new FindCallback<Conference>() {
-                        @Override
-                        public void done(List<Conference> objects, ParseException e) {
-                            Log.d(TAG, "done: " + e);
-                            if (e == null) {
-                                if (callback == null) {
-                                    VoiceConfApplication.sDataManager.setConferences(objects);
-                                } else {
-                                    callback.onResult(objects);
-                                }
-                            } else {
-                                if (callback != null) {
-                                    callback.onFailure(e);
-                                }
-                            }
+                ParseQuery<Conference> conferenceParseQuery = ParseQuery.or(queries);
+                conferenceParseQuery.include(Conference.OWNER);
+                conferenceParseQuery.include(Conference.INVITEES);
+                conferenceParseQuery.orderByDescending("createdAt");
+                conferenceParseQuery.findInBackground((objects1, e1) -> {
+                    Log.d(TAG, "done: " + e1);
+                    if (e1 == null) {
+                        if (callback == null) {
+                            VoiceConfApplication.sDataManager.setConferences(objects1);
+                        } else {
+                            callback.onResult(objects1);
                         }
-                    });
-                }else{
-                    if(callback != null) {
-                        callback.onFailure(e);
+                    } else {
+                        if (callback != null) {
+                            callback.onFailure(e1);
+                        }
                     }
+                });
+            }else{
+                if(callback != null) {
+                    callback.onFailure(e);
                 }
             }
         });
@@ -92,37 +86,31 @@ public class ConferenceService {
         conference.setOwner();
         conference.setTitle(title);
 
-        conference.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    // Creating invites
-                    inviteeIds.add(ParseUser.getCurrentUser().getObjectId());
-                    for (String id : inviteeIds) {
-                        Invite invite = new Invite();
-                        Log.d(TAG, "done: " + conference.getObjectId());
-                        invite.setConference(conference.getObjectId());
-                        invite.setInvited(id);
-                        invites.add(invite);
-                        Collections.reverse(invites);
-                    }
-                    ParseObject.saveAllInBackground(invites, new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            getConferences(null);
-                            if (e == null) {
-                                conference.putInvites(invites);
-                                conference.saveInBackground();
-                                callback.onSuccess("Invitees where notified successfully.", conference);
-                            } else {
-                                callback.onFailure(e, "Something went wrong while sending invites.");
-                            }
-                        }
-                    });
-                    callback.onSuccess("Conference created successfully.", null);
-                } else {
-                    callback.onFailure(e, "Something went wrong while creating the conference.");
+        conference.saveInBackground(e -> {
+            if (e == null) {
+                // Creating invites
+                inviteeIds.add(ParseUser.getCurrentUser().getObjectId());
+                for (String id : inviteeIds) {
+                    Invite invite = new Invite();
+                    Log.d(TAG, "done: " + conference.getObjectId());
+                    invite.setConference(conference.getObjectId());
+                    invite.setInvited(id);
+                    invites.add(invite);
+                    Collections.reverse(invites);
                 }
+                ParseObject.saveAllInBackground(invites, e1 -> {
+                    getConferences(null);
+                    if (e1 == null) {
+                        conference.putInvites(invites);
+                        conference.saveInBackground();
+                        callback.onSuccess("Invitees where notified successfully.", conference);
+                    } else {
+                        callback.onFailure(e1, "Something went wrong while sending invites.");
+                    }
+                });
+                callback.onSuccess("Conference created successfully.", null);
+            } else {
+                callback.onFailure(e, "Something went wrong while creating the conference.");
             }
         });
     }

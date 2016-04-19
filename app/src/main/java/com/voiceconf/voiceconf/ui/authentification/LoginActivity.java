@@ -71,12 +71,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         mSignInButton.setScopes(gso.getScopeArray());
         mSignInButton.setSize(SignInButton.SIZE_WIDE);
 
-        mSignInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-                startActivityForResult(signInIntent, RC_SIGN_IN);
-            }
+        mSignInButton.setOnClickListener(v -> {
+            Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+            startActivityForResult(signInIntent, RC_SIGN_IN);
         });
 
     }
@@ -101,7 +98,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 // Request was successful => checking if the user exists
                 LoginService.login(new LoginCallback() {
                     @Override
-                    public void onSucces() {
+                    public void onSuccess() {
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     }
 
@@ -121,11 +118,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
      */
     private void somethingWentWrong(String msg) {
         Snackbar.make(mSignInButton, msg, Snackbar.LENGTH_LONG)
-                .setAction(R.string.retry, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mSignInButton.performClick();
-                    }
+                .setAction(R.string.retry, v -> {
+                    mSignInButton.performClick();
                 })
                 .show();
     }

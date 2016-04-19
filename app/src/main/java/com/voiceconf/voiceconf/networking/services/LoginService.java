@@ -1,12 +1,7 @@
 package com.voiceconf.voiceconf.networking.services;
 
-import com.parse.GetCallback;
-import com.parse.LogInCallback;
-import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
-import com.parse.SignUpCallback;
 import com.voiceconf.voiceconf.storage.models.User;
 
 /**
@@ -20,54 +15,43 @@ public class LoginService {
     public static void login(final LoginCallback callback, final String name, final String uri, final String id, final String accId, final String email) {
         ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
         userQuery.whereEqualTo(User.EMAIL, email);
-        userQuery.getFirstInBackground(new GetCallback<ParseUser>() {
-            @Override
-            public void done(ParseUser parseUser, ParseException e) {
-                if (parseUser == null) {
-                    // User does not exists => creating new user
-                    User user = new User();
-                    user.setUsername(name);
-                    user.setEmail(email);
-                    user.setPassword(DEFAULT_PASSWORD); // This field must be set to create a user
+        userQuery.getFirstInBackground((parseUser, e) -> {
+            if (parseUser == null) {
+                // User does not exists => creating new user
+                User user = new User();
+                user.setUsername(name);
+                user.setEmail(email);
+                user.setPassword(DEFAULT_PASSWORD); // This field must be set to create a user
 
-                    // Start sign up request to parse.com
-                    user.signUpInBackground(new SignUpCallback() {
-                        public void done(ParseException e) {
-                            if (e == null) {
-                                User registeredUser = User.createWithoutData(User.class, User.getCurrentUser().getObjectId());
-                                User.setAvatar(registeredUser, uri);
-                                User.setUserData(registeredUser, id + accId + AUTH_DATA_END);
+                // Start sign up request to parse.com
+                user.signUpInBackground(e1 -> {
+                    if (e1 == null) {
+                        User registeredUser = User.createWithoutData(User.class, User.getCurrentUser().getObjectId());
+                        User.setAvatar(registeredUser, uri);
+                        User.setUserData(registeredUser, id + accId + AUTH_DATA_END);
 
-                                registeredUser.saveInBackground(new SaveCallback() {
-                                    @Override
-                                    public void done(ParseException e) {
-                                        if (e == null) {
-                                            // Creating user was successful starting the main activity
-                                            callback.onSucces();
-                                        } else {
-                                            callback.onFailure(e);
-                                        }
-                                    }
-                                });
+                        registeredUser.saveInBackground(e11 -> {
+                            if (e11 == null) {
+                                // Creating user was successful starting the main activity
+                                callback.onSuccess();
                             } else {
-                                callback.onFailure(e);
+                                callback.onFailure(e11);
                             }
-                        }
-                    });
-                } else {
-                    // User exists => Start Log In request to parse.com
-                    ParseUser.logInInBackground(name, DEFAULT_PASSWORD, new LogInCallback() {
-                        @Override
-                        public void done(ParseUser parseUser, ParseException e) {
-                            if (e == null) {
-                                // Existing user logged in successfully starting the main activity
-                                callback.onSucces();
-                            } else {
-                                callback.onFailure(e);
-                            }
-                        }
-                    });
-                }
+                        });
+                    } else {
+                        callback.onFailure(e1);
+                    }
+                });
+            } else {
+                // User exists => Start Log In request to parse.com
+                ParseUser.logInInBackground(name, DEFAULT_PASSWORD, (parseUser1, e1) -> {
+                    if (e1 == null) {
+                        // Existing user logged in successfully starting the main activity
+                        callback.onSuccess();
+                    } else {
+                        callback.onFailure(e1);
+                    }
+                });
             }
         });
     }
