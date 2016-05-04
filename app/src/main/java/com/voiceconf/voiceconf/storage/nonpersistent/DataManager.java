@@ -8,14 +8,13 @@ import com.voiceconf.voiceconf.storage.models.Friend;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
 
 /**
  * Use this class to manage data for the application lifecycle;
  * <p/>
  * Created by Attila Blenesi on 28 Dec 2015
  */
-public class DataManager extends Observable {
+public class DataManager extends java.util.Observable {
 
     //region VARIABLES
     // Data types for observer notification
@@ -57,6 +56,7 @@ public class DataManager extends Observable {
     public List<Conference> getConferences() {
         return mConferences;
     }
+
     //endregion
 
     //region HELPER METHODS

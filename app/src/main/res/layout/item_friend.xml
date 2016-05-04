@@ -7,12 +7,12 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_avatar"
-        android:layout_width="@dimen/min_view_height"
-        android:layout_height="@dimen/min_view_height"
+        android:layout_width="@dimen/avatar_size"
+        android:layout_height="@dimen/avatar_size"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="@dimen/content_padding"
+        android:layout_marginEnd="@dimen/large_padding"
         android:layout_marginLeft="@dimen/large_padding"
-        android:layout_marginRight="@dimen/content_padding"
+        android:layout_marginRight="@dimen/large_padding"
         android:layout_marginStart="@dimen/large_padding"
         android:src="@drawable/placeholder_conference" />
 

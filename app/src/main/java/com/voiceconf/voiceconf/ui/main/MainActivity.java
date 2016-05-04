@@ -3,39 +3,35 @@ package com.voiceconf.voiceconf.ui.main;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.parse.ParseUser;
+import com.voiceconf.voiceconf.R;
 import com.voiceconf.voiceconf.storage.models.User;
 import com.voiceconf.voiceconf.ui.authentification.LoginActivity;
 import com.voiceconf.voiceconf.ui.conference.setup.ConferenceDetailActivity;
-import com.voiceconf.voiceconf.R;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * This is the main activity witch greets the user contains a tabbed layout with recent user
  * activity and friend management.
- * <p/>
- * Created by Attila Blenesi 20 Dec 2015
- * Edited by Tamas-Csaba Kadar
  */
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, ViewPager.OnPageChangeListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, ViewPager.OnPageChangeListener {
 
     //region VARIABLES
     private static final String ADD_FRIEND_DIALOG_TAG = "add_friend";
@@ -57,7 +53,7 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         // Navigation setup
@@ -141,8 +137,6 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.action_settings:
                 return openSettings();
-            case R.id.action_log_out:
-                return logOut();
             default:
                 return super.onOptionsItemSelected(item);
         }

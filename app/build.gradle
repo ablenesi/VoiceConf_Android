@@ -73,6 +73,11 @@ dependencies {
     androidTestCompile 'com.android.support:support-annotations:23.3.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
+
+    //RxAndroid
+    compile 'io.reactivex:rxandroid:1.0.1'
+    compile 'io.reactivex:rxjava:1.0.14'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

@@ -12,38 +12,35 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/content_padding"
+            android:layout_marginRight="@dimen/content_padding"
             android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/speaker_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/current_speaker"
+                android:layout_marginTop="@dimen/large_padding"
+                android:layout_marginBottom="@dimen/content_padding"
+                android:textSize="@dimen/text_size_subhead" />
 
             <android.support.v7.widget.CardView
                 android:id="@+id/data"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/small_padding"
-                android:layout_marginEnd="-4dp"
-                android:layout_marginStart="-4dp"
-                android:layout_marginTop="@dimen/small_padding"
-                app:contentPaddingBottom="@dimen/large_padding"
-                app:contentPaddingTop="@dimen/large_padding">
-
-                <TextView
-                    android:id="@+id/speaker_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/large_padding"
-                    android:layout_marginStart="@dimen/large_padding"
-                    android:text="@string/current_speaker"
-                    android:textSize="@dimen/text_size_subhead"
-                    android:textStyle="bold" />
+                android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="@dimen/extra_large_padding"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/large_padding"
+                    android:paddingTop="@dimen/large_padding">
 
                     <TextView
                         android:id="@+id/conference_started"
@@ -72,10 +69,12 @@
                         <TextView
                             android:id="@+id/speaker_name"
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/min_view_height"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/content_padding"
                             android:gravity="center"
-                            android:text="@string/jon_snow"
-                            android:textSize="@dimen/text_size_title" />
+                            android:lines="1"
+                            android:textSize="@dimen/text_size_title"
+                            tools:text="Jon Snow" />
                     </LinearLayout>
 
                     <TextView
@@ -94,43 +93,32 @@
 
             </android.support.v7.widget.CardView>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/owner_and_invitees"
+                android:layout_marginTop="@dimen/large_padding"
+                android:layout_marginBottom="@dimen/content_padding"
+                android:textSize="@dimen/text_size_subhead" />
+
             <android.support.v7.widget.CardView
                 android:id="@+id/invited_card"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/data"
-                android:layout_marginEnd="-4dp"
-                android:layout_marginStart="-4dp">
+                android:layout_height="wrap_content">
 
-                <LinearLayout
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/invitees_recycler"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/large_padding"
-                        android:layout_marginStart="@dimen/large_padding"
-                        android:layout_marginTop="@dimen/large_padding"
-                        android:text="@string/owner_and_invitees"
-                        android:textSize="@dimen/text_size_subhead"
-                        android:textStyle="bold" />
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/invitees_recycler"
-                        android:layout_width="match_parent"
-                        android:layout_height="124dp"
-                        android:layout_marginEnd="-4dp"
-                        android:layout_marginStart="-4dp"
-                        android:clipToPadding="false"
-                        android:paddingEnd="@dimen/small_padding"
-                        android:paddingLeft="@dimen/large_padding"
-                        android:paddingRight="@dimen/small_padding"
-                        android:paddingStart="@dimen/large_padding"
-                        app:layoutManager="GridLayoutManager"
-                        tools:listitem="@layout/item_friend_horizontal" />
-                </LinearLayout>
+                    android:layout_height="124dp"
+                    android:layout_marginEnd="-4dp"
+                    android:layout_marginStart="-4dp"
+                    android:clipToPadding="false"
+                    android:paddingEnd="@dimen/small_padding"
+                    android:paddingLeft="@dimen/large_padding"
+                    android:paddingRight="@dimen/small_padding"
+                    android:paddingStart="@dimen/large_padding"
+                    app:layoutManager="GridLayoutManager"
+                    tools:listitem="@layout/item_friend_horizontal" />
             </android.support.v7.widget.CardView>
         </LinearLayout>
 
@@ -193,16 +181,16 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/fab_margin"
-        android:visibility="gone"
-        android:src="@drawable/ic_call_end_white_24dp" />
+        android:src="@drawable/ic_call_end_white_24dp"
+        android:visibility="gone" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/conference_start"
-        android:theme="@style/GreenTheme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/fab_margin"
-        android:src="@drawable/ic_call_white_24dp" />
+        android:src="@drawable/ic_call_white_24dp"
+        android:theme="@style/GreenTheme" />
 </RelativeLayout>

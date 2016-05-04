@@ -47,13 +47,10 @@ public class FriendsFragment extends Fragment implements Observer {
             // Accept
             mSwipeContainer.setRefreshing(true);
             FriendService.acceptFriend((Friend) v.getTag());
-        }, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Decline
-                mSwipeContainer.setRefreshing(true);
-                FriendService.archiveFriend((Friend) v.getTag(), true);
-            }
+        }, v -> {
+            // Decline
+            mSwipeContainer.setRefreshing(true);
+            FriendService.archiveFriend((Friend) v.getTag(), true);
         });
         mRecyclerView = (PlaceholderRecyclerView) view.findViewById(R.id.friend_recycler);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));

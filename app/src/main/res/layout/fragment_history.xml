@@ -15,6 +15,8 @@
         <com.voiceconf.voiceconf.ui.view.PlaceholderRecyclerView
             android:id="@+id/history_recycler"
             android:layout_width="match_parent"
+            android:paddingRight="@dimen/content_padding"
+            android:paddingLeft="@dimen/content_padding"
             android:layout_height="match_parent"
             tools:listitem="@layout/item_conference" />
     </android.support.v4.widget.SwipeRefreshLayout>

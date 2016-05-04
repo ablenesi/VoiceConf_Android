@@ -22,4 +22,7 @@
     <!-- List item -->
     <dimen name="list_item_height">80dp</dimen>
 
+    <!--FRIEND LIST-->
+    <dimen name="avatar_size">40dp</dimen>
+
 </resources>
