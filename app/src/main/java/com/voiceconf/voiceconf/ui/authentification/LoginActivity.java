@@ -117,6 +117,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
      * Something went wrong notifying the user
      */
     private void somethingWentWrong(String msg) {
+        Log.d(TAG, "somethingWentWrong:" + msg);
         Snackbar.make(mSignInButton, msg, Snackbar.LENGTH_LONG)
                 .setAction(R.string.retry, v -> {
                     mSignInButton.performClick();

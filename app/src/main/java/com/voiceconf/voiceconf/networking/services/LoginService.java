@@ -1,5 +1,7 @@
 package com.voiceconf.voiceconf.networking.services;
 
+import android.util.Log;
+
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.voiceconf.voiceconf.storage.models.User;
@@ -11,6 +13,7 @@ import com.voiceconf.voiceconf.storage.models.User;
 public class LoginService {
     private static final String AUTH_DATA_END = "\"}";
     private static final String DEFAULT_PASSWORD = "voiceConf";
+    private static final String TAG = "LoginService";
 
     public static void login(final LoginCallback callback, final String name, final String uri, final String id, final String accId, final String email) {
         ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
@@ -22,6 +25,8 @@ public class LoginService {
                 user.setUsername(name);
                 user.setEmail(email);
                 user.setPassword(DEFAULT_PASSWORD); // This field must be set to create a user
+
+                Log.d(TAG, "login: "+ name + " "+ email + " "+ DEFAULT_PASSWORD);
 
                 // Start sign up request to parse.com
                 user.signUpInBackground(e1 -> {

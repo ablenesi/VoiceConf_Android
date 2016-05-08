@@ -1,8 +1,9 @@
 package com.voiceconf.voiceconf.ui.conference;
 
-import android.annotation.SuppressLint;
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -10,8 +11,10 @@ import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Process;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -51,17 +54,24 @@ import java.util.concurrent.TimeUnit;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * Created by Attila Blenesi on 20 Dec 2015
+ *
  */
 public class ConferenceActivity extends AppCompatActivity implements Observer {
 
-    //region CONSTANTS
+    //region Fields
+    private static final String TAG = "ConferenceActivity";
     private static final String CONFERENCE_ID = "conference_id";
     private static final String STOP = "stop";
     private static final String START = "start";
-    //endregion
 
-    //region VARIABLES
+    private static final int CLIENT_PORT = 56789;       // Sound receiving socket
+    private static final int CLIENT_DATA_PORT = 8765;  // Data receiving sockets
+    private static final int SAMPLE_RATE = 16000;
+
+    private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_STEREO;
+    private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
+
+    // Variables
     private InviteeAdapter mAdapter;
     private CircleImageView mSpeakerAvatar;
     private TextView mSpeakerName;
@@ -69,22 +79,10 @@ public class ConferenceActivity extends AppCompatActivity implements Observer {
     private TextView mSpeakerStarted;
     private TextView mSpeakerDuration;
     private FloatingActionButton mStartConferenceButton;
-    private boolean isMicrophoneMuted;
 
-    //region COMMUNICATION RELATED VARIABLES
-
-    //region CONSTANTS
-    private static final int clientPort = 56788; // Sound receiving socket
-    private static final int clientDataPort = 56798; // Data receiving socket
-
-    private static final int SAMPLE_RATE = 16000;
-    private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_STEREO;
-    private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
-    //endregion
-
-    //region VARIABLES
     private static boolean communicationStatus = false;
     private static DatagramSocket mSocketIn;
+    private static DatagramSocket mSocketInData;
     private static DatagramSocket mSocketOut;
     private InetAddress destination;
     private AudioRecord mRecorder = null;
@@ -93,7 +91,11 @@ public class ConferenceActivity extends AppCompatActivity implements Observer {
     private int serverPort;
     //endregion
 
-    //endregion
+    public static Intent getStartIntent(Context context, Conference conference) {
+        Intent intent = new Intent(context, ConferenceActivity.class);
+        intent.putExtra(CONFERENCE_ID, conference.getObjectId());
+        return intent;
+    }
 
     //region LIFE CYCLE METHODS
     @Override
@@ -110,16 +112,6 @@ public class ConferenceActivity extends AppCompatActivity implements Observer {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);
         }
-
-        final FloatingActionButton muteMicFab = (FloatingActionButton) findViewById(R.id.fab);
-        muteMicFab.setOnClickListener(view -> {
-            isMicrophoneMuted = !isMicrophoneMuted;
-            if (isMicrophoneMuted) {
-                muteMicFab.setImageDrawable(ContextCompat.getDrawable(ConferenceActivity.this, R.drawable.ic_mic_white_24dp));
-            } else {
-                muteMicFab.setImageDrawable(ContextCompat.getDrawable(ConferenceActivity.this, R.drawable.ic_mic_off_white_24dp));
-            }
-        });
 
         // Get current conference from intent
         mConference = VoiceConfApplication.sDataManager.getConference(getIntent().getStringExtra(CONFERENCE_ID));
@@ -152,7 +144,9 @@ public class ConferenceActivity extends AppCompatActivity implements Observer {
         });
         findViewById(R.id.conference_settings).setOnClickListener(underDevelopment);
 
-        // Handle conference start an stop
+        // *****************************************************************************************
+        // Handle conference start an stop *********************************************************
+        // *****************************************************************************************
         mStartConferenceButton = (FloatingActionButton) findViewById(R.id.conference_start);
         final FloatingActionButton stopConferenceButton = (FloatingActionButton) findViewById(R.id.conference_close);
         mStartConferenceButton.setOnClickListener(arg0 -> {
@@ -163,25 +157,29 @@ public class ConferenceActivity extends AppCompatActivity implements Observer {
             mStartConferenceButton.setVisibility(View.GONE);
             stopConferenceButton.setVisibility(View.VISIBLE);
         });
-        stopConferenceButton.setOnClickListener(arg0 -> {
-            communicationStatus = false;
-            new Thread(() -> {
-                try {
-                    new DatagramSocket().send(new DatagramPacket(STOP.getBytes(), STOP.getBytes().length, destination, serverPort));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-            mRecorder.release();
-            mTrack.release();
 
-            // If the current user is the owner the conference will be closed
-            if (ParseUser.getCurrentUser().getObjectId().equals(mConference.getOwner().getObjectId())) {
-                mConference.setClosed(true);
-                mConference.saveInBackground();
-            }
-            finish();
-        });
+        if (stopConferenceButton != null)
+            stopConferenceButton.setOnClickListener(arg0 -> {
+                communicationStatus = false;
+                new Thread(() -> {
+                    try {
+                        new DatagramSocket().send(new DatagramPacket(STOP.getBytes(), STOP.getBytes().length, destination, serverPort));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+                mRecorder.release();
+                if (mTrack != null) {
+                    mTrack.release();
+                }
+
+                // If the current user is the owner the conference will be closed
+                if (ParseUser.getCurrentUser().getObjectId().equals(mConference.getOwner().getObjectId())) {
+                    mConference.setClosed(true);
+                    mConference.saveInBackground();
+                }
+                finish();
+            });
     }
 
     @Override
@@ -210,19 +208,23 @@ public class ConferenceActivity extends AppCompatActivity implements Observer {
         // handling the up navigation
         if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpTo(this, new Intent(this, MainActivity.class));
+            communicationStatus = false;
+            if(mRecorder != null) {
+                mRecorder.stop();
+                mRecorder.release();
+            }
+
+            if(mTrack != null) {
+                mTrack.stop();
+                mTrack.release();
+            }
+
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
     //endregion
 
-    public static Intent getStartIntent(Context context, Conference conference) {
-        Intent intent = new Intent(context, ConferenceActivity.class);
-        intent.putExtra(CONFERENCE_ID, conference.getObjectId());
-        return intent;
-    }
-
-    @SuppressLint("SetTextI18n")
     private void updateScreen(boolean quick) {
         mConference = VoiceConfApplication.sDataManager.getConference(getIntent().getStringExtra(CONFERENCE_ID));
         if (mConference != null) {
@@ -263,21 +265,49 @@ public class ConferenceActivity extends AppCompatActivity implements Observer {
     private void recordSound() {
         new Thread(() -> {
             try {
+                Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
                 mSocketOut = new DatagramSocket();
-                byte[] buffer = new byte[minBufSize];
-
                 DatagramPacket packet;
                 packet = new DatagramPacket(START.getBytes(), START.getBytes().length, destination, serverPort);
                 mSocketOut.send(packet);
-                mRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, minBufSize);
+
+                minBufSize = 4096;
+
+//                        AudioRecord.getMinBufferSize(SAMPLE_RATE,
+//                        AudioFormat.CHANNEL_IN_STEREO,
+//                        AudioFormat.ENCODING_PCM_16BIT);
+
+                if (minBufSize == AudioRecord.ERROR || minBufSize == AudioRecord.ERROR_BAD_VALUE) {
+                    minBufSize = SAMPLE_RATE * 2;
+                }
+
+                byte[] buffer = new byte[minBufSize];
+
+                // Check for permission
+                if (PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)) {
+                    Log.d(TAG, "recordSound: FUCK");
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.RECORD_AUDIO}, 1);
+
+                }
+
+                mRecorder = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, SAMPLE_RATE,
+                        AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSize);
+                if (mRecorder.getState() != AudioRecord.STATE_INITIALIZED) {
+                    Log.e(TAG, "Audio Record can't initialize!");
+                    return;
+                }
+
                 mRecorder.startRecording();
 
                 while (communicationStatus) {
                     minBufSize = mRecorder.read(buffer, 0, buffer.length);
-
                     packet = new DatagramPacket(buffer, buffer.length, destination, serverPort);
+
                     mSocketOut.send(packet);
                 }
+                mRecorder.stop();
+                mRecorder.release();
 
             } catch (UnknownHostException e) {
                 Log.e("VS", "UnknownHostException", e);
@@ -291,17 +321,19 @@ public class ConferenceActivity extends AppCompatActivity implements Observer {
     private void playSound() {
         Thread playThread = new Thread(() -> {
             try {
-                mSocketIn = new DatagramSocket(clientPort);
+                mSocketIn = new DatagramSocket(CLIENT_PORT);
                 mTrack = new AudioTrack(AudioManager.STREAM_MUSIC, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, minBufSize, AudioTrack.MODE_STREAM);
                 mTrack.play();
 
                 try {
                     byte[] buf = new byte[minBufSize];
                     while (communicationStatus) {
-                        DatagramPacket pack = new DatagramPacket(buf, minBufSize);
-                        mSocketIn.receive(pack);
-                        Log.d(TAG, "SOUND: " + new String(pack.getData(), 0, pack.getLength()));
-                        mTrack.write(pack.getData(), 0, pack.getLength());
+                        DatagramPacket packet = new DatagramPacket(buf, minBufSize);
+                        mSocketIn.receive(packet);
+
+                        Log.d(TAG, "PLAY: " + new String(packet.getData(), 0, packet.getLength()));
+
+                        mTrack.write(packet.getData(), 0, packet.getLength());
                     }
                 } catch (SocketException se) {
                     Log.e("", "SocketException: " + se.toString());
@@ -323,24 +355,20 @@ public class ConferenceActivity extends AppCompatActivity implements Observer {
         Thread playThread = new Thread(() -> {
             try {
                 currentSpeakerIdOld = "unknown";
-                mSocketIn = new DatagramSocket(clientDataPort);
+                mSocketInData = new DatagramSocket(CLIENT_DATA_PORT);
                 try {
-                    byte[] buf = new byte[minBufSize];
+                    byte[] buf = new byte[2048];
                     while (communicationStatus) {
-                        DatagramPacket pack = new DatagramPacket(buf, minBufSize);
-                        mSocketIn.receive(pack);
+                        DatagramPacket packet = new DatagramPacket(buf, 2048);
+                        mSocketInData.receive(packet);
 
-                        currentSpeakerId = new String(pack.getData(), 0, pack.getLength());
+                        Log.d(TAG, "DATA: " + new String(packet.getData(), 0, packet.getLength()));
 
-                        if(!currentSpeakerId.equals(currentSpeakerIdOld)) {
+                        currentSpeakerId = new String(packet.getData(), 0, packet.getLength());
+
+                        if (!currentSpeakerId.equals(currentSpeakerIdOld)) {
                             currentSpeakerIdOld = currentSpeakerId;
-                            handler.post(
-                                    new Runnable() {
-                                @Override
-                                public void run() {
-                                    updateCurrentSpeaker(currentSpeakerId);
-                                }
-                            });
+                            handler.post(() -> updateCurrentSpeaker(currentSpeakerId));
                         }
                     }
                 } catch (SocketException se) {
@@ -355,10 +383,7 @@ public class ConferenceActivity extends AppCompatActivity implements Observer {
         playThread.start();
     }
 
-    private static final String TAG = "ConferenceActivity";
-
     private void updateCurrentSpeaker(String user) {
-        Log.d(TAG, "DATA: " + user);
         switch (user) {
             case "unknown":
                 mSpeakerName.setText("Unknown speaker");

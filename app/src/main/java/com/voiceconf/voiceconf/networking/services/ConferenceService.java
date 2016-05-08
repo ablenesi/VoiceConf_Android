@@ -4,12 +4,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.parse.FindCallback;
-import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 import com.voiceconf.voiceconf.storage.models.Conference;
 import com.voiceconf.voiceconf.storage.models.Invite;
 import com.voiceconf.voiceconf.storage.nonpersistent.VoiceConfApplication;
@@ -23,14 +20,11 @@ import java.util.List;
  */
 public class ConferenceService {
 
-    private static final String TAG = "ConferenceService";
-
     public static void getConferences(@Nullable final ParseGetCallback<Conference> callback) {
         ParseQuery<Invite> inviteRequest = ParseQuery.getQuery(Invite.class);
         inviteRequest.whereEqualTo(Invite.INVITED, ParseUser.createWithoutData(ParseUser.class, ParseUser.getCurrentUser().getObjectId()));
         inviteRequest.include(Invite.CONFERENCE);
         inviteRequest.findInBackground((objects, e) -> {
-            Log.d(TAG, "done: " + e);
             if(e == null) {
                 List<String> conferenceIds = new ArrayList<>();
                 for (Invite invite : objects) {
@@ -52,7 +46,6 @@ public class ConferenceService {
                 conferenceParseQuery.include(Conference.INVITEES);
                 conferenceParseQuery.orderByDescending("createdAt");
                 conferenceParseQuery.findInBackground((objects1, e1) -> {
-                    Log.d(TAG, "done: " + e1);
                     if (e1 == null) {
                         if (callback == null) {
                             VoiceConfApplication.sDataManager.setConferences(objects1);
@@ -92,7 +85,6 @@ public class ConferenceService {
                 inviteeIds.add(ParseUser.getCurrentUser().getObjectId());
                 for (String id : inviteeIds) {
                     Invite invite = new Invite();
-                    Log.d(TAG, "done: " + conference.getObjectId());
                     invite.setConference(conference.getObjectId());
                     invite.setInvited(id);
                     invites.add(invite);
