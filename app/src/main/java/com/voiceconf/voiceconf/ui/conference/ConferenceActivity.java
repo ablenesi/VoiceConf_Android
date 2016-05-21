@@ -262,52 +262,74 @@ public class ConferenceActivity extends AppCompatActivity implements Observer {
     }
 
     // region COMMUNICATION
+//    private void recordSound() {
+//        new Thread(() -> {
+//            try {
+//                Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
+//                mSocketOut = new DatagramSocket();
+//                DatagramPacket packet;
+//                packet = new DatagramPacket(START.getBytes(), START.getBytes().length, destination, serverPort);
+//                mSocketOut.send(packet);
+//
+////                if (minBufSize == AudioRecord.ERROR || minBufSize == AudioRecord.ERROR_BAD_VALUE) {
+////                    minBufSize = SAMPLE_RATE * 2;
+////                }
+//
+//                byte[] buffer = new byte[minBufSize];
+//
+//                // Check for permission
+//                if (PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)) {
+//                    Log.d(TAG, "recordSound: FUCK");
+//                    ActivityCompat.requestPermissions(this,
+//                            new String[]{Manifest.permission.RECORD_AUDIO}, 1);
+//
+//                }
+//
+//                mRecorder = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, SAMPLE_RATE,
+//                        AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSize);
+//                if (mRecorder.getState() != AudioRecord.STATE_INITIALIZED) {
+//                    Log.e(TAG, "Audio Record can't initialize!");
+//                    return;
+//                }
+//
+//                mRecorder.startRecording();
+//
+//                while (communicationStatus) {
+//                    mRecorder.read(buffer, 0, buffer.length);
+//                    packet = new DatagramPacket(buffer, buffer.length, destination, serverPort);
+//
+//                    mSocketOut.send(packet);
+//                }
+//
+//                mRecorder.stop();
+//                mRecorder.release();
+//
+//            } catch (UnknownHostException e) {
+//                Log.e("VS", "UnknownHostException", e);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                Log.e("VS", "" + e);
+//            }
+//        }).start();
+//    }
     private void recordSound() {
         new Thread(() -> {
             try {
-                Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
                 mSocketOut = new DatagramSocket();
+                byte[] buffer = new byte[minBufSize];
+
                 DatagramPacket packet;
                 packet = new DatagramPacket(START.getBytes(), START.getBytes().length, destination, serverPort);
                 mSocketOut.send(packet);
-
-                minBufSize = 4096;
-
-//                        AudioRecord.getMinBufferSize(SAMPLE_RATE,
-//                        AudioFormat.CHANNEL_IN_STEREO,
-//                        AudioFormat.ENCODING_PCM_16BIT);
-
-                if (minBufSize == AudioRecord.ERROR || minBufSize == AudioRecord.ERROR_BAD_VALUE) {
-                    minBufSize = SAMPLE_RATE * 2;
-                }
-
-                byte[] buffer = new byte[minBufSize];
-
-                // Check for permission
-                if (PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)) {
-                    Log.d(TAG, "recordSound: FUCK");
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.RECORD_AUDIO}, 1);
-
-                }
-
-                mRecorder = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, SAMPLE_RATE,
-                        AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSize);
-                if (mRecorder.getState() != AudioRecord.STATE_INITIALIZED) {
-                    Log.e(TAG, "Audio Record can't initialize!");
-                    return;
-                }
-
+                mRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, minBufSize);
                 mRecorder.startRecording();
 
                 while (communicationStatus) {
                     minBufSize = mRecorder.read(buffer, 0, buffer.length);
-                    packet = new DatagramPacket(buffer, buffer.length, destination, serverPort);
 
+                    packet = new DatagramPacket(buffer, buffer.length, destination, serverPort);
                     mSocketOut.send(packet);
                 }
-                mRecorder.stop();
-                mRecorder.release();
 
             } catch (UnknownHostException e) {
                 Log.e("VS", "UnknownHostException", e);
@@ -395,11 +417,7 @@ public class ConferenceActivity extends AppCompatActivity implements Observer {
                 break;
             case "nandi":
                 mSpeakerName.setText("Nándor Kedves");
-                Glide.with(this).load("https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpt1/v/t1.0-9/12509720_1117195188324605_3150122052569060595_n.jpg?oh=277336556d493082314230651b43f74a&oe=570A079F").into(mSpeakerAvatar);
-                break;
-            case "beni":
-                mSpeakerName.setText("Zoltán Benedek");
-                Glide.with(this).load("https://lh5.googleusercontent.com/-umTQuou3YuY/AAAAAAAAAAI/AAAAAAAAAOQ/lcmE3d7jHnA/photo.jpg").into(mSpeakerAvatar);
+                Glide.with(this).load("https://i.imgur.com/9ebl3ec.jpg").into(mSpeakerAvatar);
                 break;
             case "katinka":
                 mSpeakerName.setText("Katinka Páll");
